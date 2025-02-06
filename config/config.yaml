@@ -1,0 +1,78 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
+
+database:
+  host: "db"
+  port: 5432
+  user: "smsc"
+  password: "smsc_password"
+  name: "smsc_db"
+  ssl_mode: "disable"
+
+smpp:
+  host: "0.0.0.0"
+  port: 2775
+  tls_port: 2776
+  system_id: "smsc_gateway"
+  password: "secret"
+  timeout: 30
+
+sigtran:
+  sctp:
+    local_port: 2905
+    remote_port: 2906
+    max_streams: 10
+  m3ua:
+    local_point_code: 1
+    remote_point_code: 2
+    network_indicator: 2
+    routing_context: 100
+  sccp:
+    local_gt: "1234567890"
+    translation_type: 0
+
+security:
+  jwt_secret: "your-secret-key"
+  token_expiry: "24h"
+  tls_cert: "/app/config/certs/server.crt"
+  tls_key: "/app/config/certs/server.key"
+
+routing:
+  default_route: "operator1"
+  max_retries: 3
+  retry_interval: "5s"
+  operators:
+    - name: "operator1"
+      priority: 1
+      weight: 100
+      max_tps: 1000
+    - name: "operator2"
+      priority: 2
+      weight: 50
+      max_tps: 500
+
+monitoring:
+  prometheus_enabled: true
+  metrics_path: "/metrics"
+  collection_interval: "15s"
+
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"
+  file_path: "/var/log/smsc/smsc.log"
+
+queue:
+  driver: "redis"
+  host: "redis"
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 10
+
+rate_limiting:
+  enabled: true
+  requests_per_second: 1000
+  burst: 50 

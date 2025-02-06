@@ -1,0 +1,55 @@
+services:
+  smsc-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # HTTP API
+      - "2775:2775"  # SMPP
+      - "2776:2776"  # SMPP TLS
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=smsc
+      - DB_PASSWORD=smsc_password
+      - DB_NAME=smsc_db
+    depends_on:
+      - db
+    networks:
+      - smsc-network
+    restart: unless-stopped
+
+  admin-panel:
+    build:
+      context: ./web/admin
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - smsc-gateway
+    networks:
+      - smsc-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=smsc
+      - POSTGRES_PASSWORD=smsc_password
+      - POSTGRES_DB=smsc_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - smsc-network
+    restart: unless-stopped
+
+networks:
+  smsc-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 
